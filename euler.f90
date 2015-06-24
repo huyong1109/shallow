@@ -42,9 +42,9 @@ subroutine euler(dt,iter)
 	end do
 
 	do j=2,n-1
-	    ai=dt2*c11(j)
 
 	    do i=2,np
+	    ai=dt2*0.5*dxr(i,j)
 		aj=ai*h(i,j)
 		a1(i)=aj
 		ru(i)=tu(i,j)*aj

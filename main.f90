@@ -108,7 +108,7 @@ program main
     tmass0 = 0
     do j=1,n
 	do i=2,np
-	    tmass0=tmass0+wh(i,j)*c2(j)
+	    tmass0=tmass0+wh(i,j)*c1(i,j)
 	end do
     end do
 
@@ -178,7 +178,7 @@ program main
 	    tmass = 0
 	    do j=1,n
 		do i=2,np
-		    tmass=tmass+wh(i,j)*c2(j)
+		    tmass=tmass+wh(i,j)*c1(i,j)
 		end do
 	    end do
 	    ! 
@@ -256,7 +256,7 @@ function inner(u1,v1,h1,u2,v2,h2)
     inner = 0.0d0
     do j=1,n
 	do i=2,np
-	    inner=inner+(u1(i,j)*u2(i,j)+v1(i,j)*v2(i,j)+h1(i,j)*h2(i,j))*c2(j)
+	    inner=inner+(u1(i,j)*u2(i,j)+v1(i,j)*v2(i,j)+h1(i,j)*h2(i,j))*c1(i,j)
 	end do
     end do
     return

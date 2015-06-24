@@ -25,8 +25,8 @@ subroutine haurwitz
 
     do j=2,n-1
 	do i=2,np
-	    aj=c1(j)
-	    ai=s1(j)
+	    aj=c1(i,j)
+	    ai=s1(i,j)
 	    !-------------------------- u(x,y,0) ------------------------------
 	    ak=aj**r
 	    al=aj*aj

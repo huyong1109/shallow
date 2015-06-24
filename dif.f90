@@ -13,7 +13,7 @@ subroutine difuh(wu,wv,du,dh,h)
 	do i=2,np
 	    u (i,j)=wu(i,j)/h(i,j)
 	    v (i,j)=wv(i,j)/h(i,j)
-	    vv(i,j)=v (i,j)*c1(j)
+	    vv(i,j)=v (i,j)*c1(i,j)
 	enddo
     enddo
     
@@ -21,24 +21,24 @@ subroutine difuh(wu,wv,du,dh,h)
        
     do j=2,n-1
 	do i=2,np
-	    ff=f1(j)+u(i,j)*f2(j)
+	    ff=f1(i,j)+u(i,j)*f2(i,j)
 	    du(i,j)=du(i,j)-ff*wv(i,j)
 	    
-	    hy(i,j)=wv(i,j)*h(i,j)*c1(j)
+	    hy(i,j)=wv(i,j)*h(i,j)*c1(i,j)
 	end do
     end do
     
     do i=2,np
-	du(i,1)=0.0
-	du(i,n)=0.0
-	
-	hy(i,1)=0.0
-	hy(i,n)=0.0
+	    du(i,1)=0.0
+	    du(i,n)=0.0
+	    
+	    hy(i,1)=0.0
+	    hy(i,n)=0.0
     enddo
        
     do j=2,n-1
 	do i=2,np
-	    dh(i,j)=(hy(i,j+1)-hy(i,j-1))*c12(j)
+	    dh(i,j)=(hy(i,j+1)-hy(i,j-1))*0.5*dyr(i,j)
 	end do
     end do
     
@@ -48,8 +48,8 @@ subroutine difuh(wu,wv,du,dh,h)
 	hys=hys+hy(i,2)
 	hyn=hyn-hy(i,n-1)
     enddo
-    hys=hys*c12(1)/(np-1)
-    hyn=hyn*c12(n)/(np-1)
+    hys=hys*0.5*dyr(1,1)/(np-1)
+    hyn=hyn*0.5*dyr(1,n)/(np-1)
     
     do i=2,np
 	dh(i,1)=hys
@@ -71,10 +71,10 @@ subroutine difv(wu,wv,wh,dv,h)
     
     do j=2,n-1
 	do i=2,np
-	    hh(i,j)=h(i,j)*c1(j)
+	    hh(i,j)=h(i,j)*c1(i,j)
 	    u(i,j)=wu(i,j)/h(i,j)
 	    v(i,j)=wv(i,j)/h(i,j)
-	    vv(i,j)=v(i,j)*c1(j)
+	    vv(i,j)=v(i,j)*c1(i,j)
 	enddo
     enddo
     
@@ -82,8 +82,8 @@ subroutine difv(wu,wv,wh,dv,h)
        
     do j=2,n-1
 	do i=2,np
-	    ff=f1(j)+u(i,j)*f2(j)
-	    dv(i,j)=dv(i,j)+hh(i,j)*(wh(i,j+1)-wh(i,j-1))*c12(j)+ff*wu(i,j)
+	    ff=f1(i,j)+u(i,j)*f2(i,j)
+	    dv(i,j)=dv(i,j)+hh(i,j)*(wh(i,j+1)-wh(i,j-1))*0.5*dyr(i,j)+ff*wu(i,j)
 	end do
     end do
     
@@ -128,7 +128,7 @@ subroutine advct(u,v,f,df)
 	do i=2,np
 	    dx=u(i,j)*(f(i+1,j)-f(i-1,j))+su(i+1,j)-su(i-1,j)
 	    dy=v(i,j)*(f(i,j+1)-f(i,j-1))+sv(i,j+1)-sv(i,j-1)
-	    df(i,j)=dx*c13(j)+dy*c14(j)
+	    df(i,j)=0.25*(dx*dxr(i,j)+dy*dyr(i,j))
 	enddo
     enddo
     return
