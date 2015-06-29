@@ -8,14 +8,14 @@ subroutine euler(dt,iter)
     real*8,dimension(1:n1,1:n)  :: tu,tv,th,h 
     real*8,dimension(1:n1,1:n)  :: du,dv,dh 
     real*8,dimension(1:n1)      :: a1,a2,rh,ru 
-    real*8,dimension(1:kn)      :: fm,fp,f0,gm,gp,g0,rf,rg 
+    real*8,dimension(1:p)       :: fm,fp,f0,gm,gp,g0,rf,rg 
     real*8                      :: ai,aj,dt,dt2,en,en0,den
     real*8,external             :: inner
 
     dt2=dt*0.5d0
 
     do j=1,n
-	do i=2,np
+	do i=2,nx+1
 	    tu(i,j)=wu(i,j)
 	    tv(i,j)=wv(i,j)
 	    th(i,j)=wh(i,j)
@@ -26,24 +26,24 @@ subroutine euler(dt,iter)
 
     do k=1,1000
 
-	do j=1,n
-	    do i=2,np
+	do j=1,ny+2
+	    do i=2,nx+1
 		h(i,j)=dsqrt(th(i,j))
 	    end do
 	end do
 
 	call difuh(tu,tv,du,dh,h)
 
-	do j=1,n
-	    do i=2,np
+	do j=1,ny+2
+	    do i=2,nx+1
 		tu(i,j)=wu(i,j)-dt2*du(i,j)
 		th(i,j)=wh(i,j)-dt2*dh(i,j)
 	    end do
 	end do
 
-	do j=2,n-1
+	do j=2,ny+1
 
-	    do i=2,np
+	    do i=2,nx+1
 	    ai=dt2*0.5*dxr(i,j)
 		aj=ai*h(i,j)
 		a1(i)=aj
@@ -52,14 +52,14 @@ subroutine euler(dt,iter)
 		a2(i)=aj*aj
 	    end do
 
-	    ru(1)=ru(np)
+	    ru(1)=ru(nx+1)
 	    ru(n1)=ru(2)
 
-	    do i=2,np
+	    do i=2,nx+1
 		rh(i)=th(i,j)-ru(i+1)+ru(i-1)
 	    enddo
 
-	    do i=1,kn
+	    do i=1,p
 		i1=i*2
 		i2=i1+1
 
@@ -70,25 +70,25 @@ subroutine euler(dt,iter)
 		rg(i)=rh(i2)
 	    enddo
 
-	    do i=2,kn
+	    do i=2,p
 		fm(i)=fp(i-1)
 	    enddo
-	    fm(1)=fp(kn)
+	    fm(1)=fp(p)
 
-	    do i=1,kn-1
+	    do i=1,p-1
 		gp(i)=gm(i+1)
 	    enddo
-	    gp(kn)=gm(1)
+	    gp(p)=gm(1)
 
-	    do i=1,kn
+	    do i=1,p
 		f0(i)=1.0-fm(i)-fp(i)
 		g0(i)=1.0-gm(i)-gp(i)
 	    enddo
 
-	    call lu0(fm,f0,fp,rf,kn)
-	    call lu0(gm,g0,gp,rg,kn)
+	    call lu0(fm,f0,fp,rf,p)
+	    call lu0(gm,g0,gp,rg,p)
 
-	    do i=1,kn
+	    do i=1,p
 		i1=i*2
 		i2=i1+1
 
@@ -96,18 +96,17 @@ subroutine euler(dt,iter)
 		th(i2,j)=rg(i)
 	    enddo
 
-	    th(1,j)=th(np,j)
+	    th(1,j)=th(nx+1,j)
 	    th(n1,j)=th(2,j)
 
-	    do i=2,np
+	    do i=2,nx+1
 		tu(i,j)=tu(i,j)-a1(i)*(th(i+1,j)-th(i-1,j))
 	    enddo
 	end do
-
 	call difv(tu,tv,th,dv,h)
 
-	do j=1,n
-	    do i=2,np
+	do j=1,ny+2
+	    do i=2,nx+1
 		tv(i,j)=wv(i,j)-dt2*dv(i,j)
 	    end do
 	end do
@@ -123,8 +122,8 @@ subroutine euler(dt,iter)
     10   continue
     iter=k
 
-    do j=1,n
-	do i=2,np
+    do j=1,ny+2
+	do i=2,nx+1
 	    wu(i,j)=tu(i,j)*2.0d0-wu(i,j)
 	    wv(i,j)=tv(i,j)*2.0d0-wv(i,j)
 	    wh(i,j)=th(i,j)*2.0d0-wh(i,j)

@@ -4,6 +4,8 @@ module module_array
 
     implicit none
 
+
+    ! field variables 
     real*8,  dimension(1:n1,1:n) ::    u               ! zonal wind
     real*8,  dimension(1:n1,1:n) ::    v               ! meridional wind
     real*8,  dimension(1:n1,1:n) ::    wh              ! geopotential height

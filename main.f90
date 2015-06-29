@@ -23,9 +23,9 @@ program main
     tlp=t1-tt-tlo*iwr
      
     if (tlp.gt.0) then
-	iwr=iwr+1
+        iwr=iwr+1
     else
-	tlp=tlo
+        tlp=tlo
     end if
 
     print *,'initial time is',tt
@@ -33,119 +33,123 @@ program main
     print *,'time stepsize is',tlo
 
     if (n0.eq.0) then
-	print *,'this is a rh-wvae experiment,'
-	print *,'i.e., the ic is rh-wave'
+    print *,'this is a rh-wvae experiment,'
+    print *,'i.e., the ic is rh-wave'
     else
-	print *,'this is self-defined experiment,'
-	print *,'i.e., the ic is read from files'
+    print *,'this is self-defined experiment,'
+    print *,'i.e., the ic is read from files'
     end if
-
+    
     if (nyn.ne.0) then
-	print *,'the energy... will be shown once 12 hours'
+    print *,'the energy... will be shown once 12 hours'
     else
-	print *,'the energy... will be shown at each time step'
+    print *,'the energy... will be shown at each time step'
     end if
 
     !   parameter setting
-    call cs
+    if (runcase == 0 ) then 
+        call llgrid
+    else if (runcase == 1) then 
+        call gcgrid 
+    endif 
 
     !	initial condition
     if (n0.eq.0) then
-	!      using rossby-haurwitz waves as initial condition
-	call haurwitz
+    !      using rossby-haurwitz waves as initial condition
+    call haurwitz
     else
-	!      read initial conditon from your files
-	open(10,file=fu)
-	open(11,file=fv)
-	open(12,file=fh)
-	 
-	read(10,130)(( u(i,j),j=1,n),i=1,n1)
-	read(11,130)(( v(i,j),j=1,n),i=1,n1)
-	read(12,130)((wh(i,j),j=1,n),i=1,n1)
-
-	close(10)
-	close(11)
-	close(12)
+    !      read initial conditon from your files
+    open(10,file=fu)
+    open(11,file=fv)
+    open(12,file=fh)
+     
+    read(10,130)(( u(i,j),j=1,n),i=1,n1)
+    read(11,130)(( v(i,j),j=1,n),i=1,n1)
+    read(12,130)((wh(i,j),j=1,n),i=1,n1)
+    
+    close(10)
+    close(11)
+    close(12)
     end if
      
-    call opf(np,n,'uu.dat',12)
-    call opf(np,n,'vv.dat',13)
-    call opf(np,n,'hh.dat',14)
+    call opf(nx+1,n,'uu.dat',12)
+    call opf(nx+1,n,'vv.dat',13)
+    call opf(nx+1,n,'hh.dat',14)
      
     irecu=0
     irecv=0
     irech=0
      
     do j=1,n
-	do i=2,np
-	    pu(i,j)=u(i,j)
-	    pv(i,j)=v(i,j)
-	    ph(i,j)=wh(i,j)
-	    ai=dsqrt(wh(i,j))
-	    wu(i,j)=u(i,j)*ai
-	    wv(i,j)=v(i,j)*ai
-	end do
-	pu(1,j)=pu(np,j)
-	pv(1,j)=pv(np,j)
-	ph(1,j)=ph(np,j)
-
-	wu(1,j)=wu(np,j)
-	wu(n1,j)=wu(2,j)
-
-	wv(1,j)=wv(np,j)
-	wv(n1,j)=wv(2,j)
-
-	wh(1,j)=wh(np,j)
-	wh(n1,j)=wh(2,j)
+    do i=2,nx+1
+        pu(i,j)=u(i,j)
+        pv(i,j)=v(i,j)
+        ph(i,j)=wh(i,j)
+        ai=dsqrt(wh(i,j))
+        wu(i,j)=u(i,j)*ai
+        wv(i,j)=v(i,j)*ai
     end do
-
-    call wr(pu,np,n,12,irecu)
-    call wr(pv,np,n,13,irecv)
-    call wr(ph,np,n,14,irech)
-
+    pu(1,j)=pu(nx+1,j)
+    pv(1,j)=pv(nx+1,j)
+    ph(1,j)=ph(nx+1,j)
+    
+    wu(1,j)=wu(nx+1,j)
+    wu(n1,j)=wu(2,j)
+    
+    wv(1,j)=wv(nx+1,j)
+    wv(n1,j)=wv(2,j)
+    
+    wh(1,j)=wh(nx+1,j)
+    wh(n1,j)=wh(2,j)
+    end do
+    
+    call wr(pu,nx+1,n,12,irecu)
+    call wr(pv,nx+1,n,13,irecv)
+    call wr(ph,nx+1,n,14,irech)
+    
     tener0=inner(wu,wv,wh,wu,wv,wh)
-
+    
     tmass0 = 0
-    do j=1,n
-	do i=2,np
-	    tmass0=tmass0+wh(i,j)*c1(i,j)
-	end do
+    do j=1,ny+2
+    do i=2,nx+1
+        tmass0=tmass0+wh(i,j)*c1(i,j)
     end do
-
+    end do
+    
     print *,'the total energy is ',tener0
     print *,'the total mass is ',tmass0
-
+    
     nt=23
     dt=tlo
     nw=0
     !
     print *,'the main part of this program has started'
-
+    
     print *,'number of integration steps is',iwr
-
+    
     do iws=1,iwr
-
-	if (iws.eq.iwr) then
-	    dt=tlp
-	    tt=tt+tlp
-	else
-	    tt=tt+tlo
-	end if
-
-	nw=nw+1
-
-	if (nt.eq.23) then
-	    print *,'-------------------------------------------------------------------------------'
-	    print *,'       the energy           the total-mass        the iteration number'
-	    nt=1
-	end if
-	!------------------------------------------------
-	!       the time integration
-	!------------------------------------------------
-	call euler(dt,iter)
+    
+    if (iws.eq.iwr) then
+        dt=tlp
+        tt=tt+tlp
+    else
+        tt=tt+tlo
+    end if
+    
+    nw=nw+1
+    
+    if (nt.eq.23) then
+        print *,'-------------------------------------------------------------------------------'
+        print *,'       the energy           the total-mass        the iteration number'
+        nt=1
+    end if
+    !------------------------------------------------
+    !       the time integration
+    !------------------------------------------------
+    call euler(dt,iter)
 
 	do j=1,n
-	    do i=2,np
+	    do i=2,nx+1
 		ai=dsqrt(wh(i,j))
 		u(i,j)=wu(i,j)/ai
 		v(i,j)=wv(i,j)/ai
@@ -155,20 +159,20 @@ program main
 	if ((tt-thalf.ge.0).and.(tt-thalf.lt.dt)) then
 	    !
 	    do j=1,n
-		do i=2,np
+		do i=2,nx+1
 		    ai=dsqrt(wh(i,j))
 		    pu(i,j)=u(i,j)
 		    pv(i,j)=v(i,j)
 		    ph(i,j)=wh(i,j)
 		end do
-		pu(1,j)=pu(np,j)
-		pv(1,j)=pv(np,j)
-		ph(1,j)=ph(np,j)
+		pu(1,j)=pu(nx+1,j)
+		pv(1,j)=pv(nx+1,j)
+		ph(1,j)=ph(nx+1,j)
 	    end do
 	    !
-	    call wr(pu,np,n,12,irecu)
-	    call wr(pv,np,n,12,irecu)
-	    call wr(ph,np,n,14,irech)
+	    call wr(pu,nx+1,n,12,irecu)
+	    call wr(pv,nx+1,n,12,irecu)
+	    call wr(ph,nx+1,n,14,irech)
 	    !
 	end if
 	!
@@ -177,7 +181,7 @@ program main
 
 	    tmass = 0
 	    do j=1,n
-		do i=2,np
+		do i=2,nx+1
 		    tmass=tmass+wh(i,j)*c1(i,j)
 		end do
 	    end do
@@ -200,30 +204,30 @@ program main
     open(2,file=ffv)
     open(3,file=ffh)
     !
-    130	format(200f16.8)
+    130	format(180f16.8)
 
-    write(1,130) (( u(i,j),j=1,n),i=1,n1)
-    write(2,130) (( v(i,j),j=1,n),i=1,n1)
-    write(3,130) ((wh(i,j),j=1,n),i=1,n1)
+    write(1,130) (( u(i,j),i=2,nx+1),j=1,ny+2)
+    write(2,130) (( v(i,j),i=2,nx+1),j=1,ny+2)
+    write(3,130) ((wh(i,j),i=2,nx+1),j=1,ny+2)
 
     close(1)
     close(2)
     close(3)
     !
     do j=1,n
-	do i=2,np
-	    pu(i,j)=u(i,j)
-	    pv(i,j)=v(i,j)
-	    ph(i,j)=wh(i,j)
-	end do
-	pu(1,j)=pu(np,j)
-	pv(1,j)=pv(np,j)
-	ph(1,j)=ph(np,j)
+    do i=2,nx+1
+        pu(i,j)=u(i,j)
+        pv(i,j)=v(i,j)
+        ph(i,j)=wh(i,j)
+    end do
+    pu(1,j)=pu(nx+1,j)
+    pv(1,j)=pv(nx+1,j)
+    ph(1,j)=ph(nx+1,j)
     end do
     !
-    call wr(pu,np,n,12,irecu)
-    call wr(pv,np,n,12,irecu)
-    call wr(ph,np,n,14,irech)
+    call wr(pu,nx+1,n,12,irecu)
+    call wr(pv,nx+1,n,12,irecu)
+    call wr(ph,nx+1,n,14,irech)
     !
     close(12)
     close(14)
@@ -255,9 +259,9 @@ function inner(u1,v1,h1,u2,v2,h2)
     
     inner = 0.0d0
     do j=1,n
-	do i=2,np
-	    inner=inner+(u1(i,j)*u2(i,j)+v1(i,j)*v2(i,j)+h1(i,j)*h2(i,j))*c1(i,j)
-	end do
+    do i=2,nx+1
+        inner=inner+(u1(i,j)*u2(i,j)+v1(i,j)*v2(i,j)+h1(i,j)*h2(i,j))*c1(i,j)
+    end do
     end do
     return
 end function inner

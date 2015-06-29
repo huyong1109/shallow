@@ -19,12 +19,12 @@ subroutine haurwitz
     !													 
     integer            ::   i,j			    ! working variable
     !
-    detar=2*pi/p*r
+    detar=2*pi/nx*r
     r1=r+1
     r2=r*r
 
     do j=2,n-1
-	do i=2,np
+	do i=2,nx+1
 	    aj=c1(i,j)
 	    ai=s1(i,j)
 	    !-------------------------- u(x,y,0) ------------------------------
@@ -57,18 +57,19 @@ subroutine haurwitz
 	enddo
     enddo
 
+
     do j = 2, n
-	wh(1,j)=wh(np,j)
-	wh(np+1,j)=wh(2,j)
+	wh(1,j)=wh(nx+1,j)
+	wh(nx+2,j)=wh(2,j)
 	!
-	u(1,j)= u(np,j)
-	u(np+1,j)= u(2,j)
+	u(1,j)= u(nx+1,j)
+	u(nx+2,j)= u(2,j)
 	!
-	v(1,j)= v(np,j)
-	v(np+1,j)= v(2,j)
+	v(1,j)= v(nx+1,j)
+	v(nx+2,j)= v(2,j)
     end do
     !
-    do i=1,np+1
+    do i=1,nx+2
 	fi = fi0
 	wh(i,1)=fi
 	wh(i,n)=fi
