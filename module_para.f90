@@ -10,7 +10,7 @@ module module_para
     integer, parameter       ::    p = nx/2		    ! to define zonal resolution
     integer, parameter       ::    n1 = nx+2			   
      													       
-    integer, parameter       ::    ny = 89  		    ! to define meridional resolution
+    integer, parameter       ::    ny = 79  		    ! to define meridional resolution
     !integer, parameter       ::    ny = 384     ! to define meridional resolution
     !integer, parameter       ::    q  = ny/2			   
     integer, parameter       ::    n  = ny+2		    ! meridional grid number

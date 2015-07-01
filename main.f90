@@ -71,6 +71,20 @@ program main
     close(11)
     close(12)
     end if
+
+    open(1,file=ffu)
+    open(2,file=ffv)
+    open(3,file=ffh)
+    !
+    130	format(180f16.8)
+
+    write(1,130) (( u(i,j),i=2,nx+1),j=1,ny+2)
+    write(2,130) (( v(i,j),i=2,nx+1),j=1,ny+2)
+    write(3,130) ((wh(i,j),i=2,nx+1),j=1,ny+2)
+
+    close(1)
+    close(2)
+    close(3)
      
     call opf(nx+1,n,'uu.dat',12)
     call opf(nx+1,n,'vv.dat',13)
@@ -204,7 +218,7 @@ program main
     open(2,file=ffv)
     open(3,file=ffh)
     !
-    130	format(180f16.8)
+    !130	format(180f16.8)
 
     write(1,130) (( u(i,j),i=2,nx+1),j=1,ny+2)
     write(2,130) (( v(i,j),i=2,nx+1),j=1,ny+2)
